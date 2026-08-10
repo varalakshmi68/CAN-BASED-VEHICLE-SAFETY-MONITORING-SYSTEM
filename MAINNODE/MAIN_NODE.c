@@ -3,15 +3,16 @@
 // Handles engine temperature monitoring, indicator control,
 // CAN communication, vehicle mode display and reverse safety alert.
 
-#include <LPC21xx.h>              
-#include "major_type.h"           
-#include "major_lcd.h"            
-#include "major_lcd_defines.h"   
-#include "DELAY_MAJOR.h"          
-#include "DS18B20_MAJOR.h"        
-#include "can_major.h"            
-#include "can_defines_major.h"    
-#include "buzzer_major.h"         
+#include <LPC21xx.h>              // LPC21xx microcontroller register definitions
+#include "major_type.h"           // Project-specific data type definitions such as u8, u32, f32
+#include "major_lcd.h"            // LCD function declarations
+#include "major_lcd_defines.h"    // LCD commands, positions and control definitions
+#include "DELAY_MAJOR.h"          // Delay function declarations
+#include "DS18B20_MAJOR.h"         // DS18B20 temperature sensor functions
+#include "can_major.h"             // CAN initialization, transmission and reception functions
+#include "can_defines_major.h"     // CAN register and bit definitions
+#include "buzzer_major.h"          // Buzzer control functions
+
 
 // Vehicle operating mode.
 // 0 = Forward mode
@@ -19,7 +20,7 @@
 volatile u8 mode = 0;
 
 
-// Indicator switch status updated by the interrupt routine.
+// Indicator switch status updated by the interrupt routines.
 volatile u8 left_flag = 0;
 volatile u8 right_flag = 0;
 
@@ -31,40 +32,41 @@ volatile u8 right_flag = 0;
 volatile u8 tx_flag = 0;
 
 
-// Stores reverse-alert information received from the Reverse Node.
+// Stores the reverse-alert information received from the Reverse Node.
 volatile u8 reverse_alert = 0;
 
 
-// Current indicator command.
+// Stores the current indicator command.
 // 'L' = Left indicator
 // 'R' = Right indicator
 // 'S' = Indicators OFF
 volatile u8 indicator_cmd = 'S';
 
 
-// Used to create the blinking effect on the LCD.
+// Used to create the blinking effect of the indicator symbols on the LCD.
 u8 blink = 0;
 
 
-// Temperature value read from the DS18B20 sensor.
+// Stores the temperature value read from the DS18B20 sensor.
 f32 temp;
 
 
-// Integer part of the temperature used for LCD display.
+// Stores the integer part of the temperature for LCD display.
 s32 tp;
 
 
-// Fractional temperature digit used to display .0 or .5.
+// Stores the fractional temperature digit.
+// The program displays either .0 or .5.
 u8 tpd;
 
 
-// Obstacle distance received from the Reverse Node through CAN.
+// Stores the obstacle distance received from the Reverse Node through CAN.
 u32 dist = 0;
 
 
-// Custom LCD character patterns for the indicator symbols.
-// First 8 bytes  = first indicator symbol.
-// Next 8 bytes   = second indicator symbol.
+// Custom LCD character patterns used for the left and right indicator symbols.
+// First 8 bytes  = first custom indicator character.
+// Next 8 bytes   = second custom indicator character.
 u8 indicator_lut[] =
 {
     0x01,
@@ -87,47 +89,58 @@ u8 indicator_lut[] =
 };
 
 
-// Enables the external interrupts used by the Main Node.
+// Function declaration for enabling the external interrupts.
 void interrupt_enable(void);
 
 
 int main()
 {
-    // tx = CAN frame used for transmission.
-    // rx = CAN frame used for received messages.
+    // tx = CAN frame used for transmitting data.
+    // rx = CAN frame used for receiving data.
     struct CAN_Frame tx, rx;
 
 
-    // Initialize the LCD.
+    // Initialize the LCD and configure its pins.
     InitLCD();
 
 
-    // Initialize CAN1 for communication with other nodes.
+    // Initialize CAN Controller 1 for communication
+    // between the Main Node and other CAN nodes.
     Init_CAN1();
 
 
-    // Enable the required external interrupts.
+    // Enable the external interrupts used for
+    // mode, left-indicator and right-indicator switches.
     interrupt_enable();
 
 
-    // Initialize the buzzer.
+    // Initialize the buzzer GPIO pin.
     Buzzer_init();
 
 
-    // Load the indicator symbols into the LCD CGRAM.
-    // They can later be displayed using CharLCD(0) and CharLCD(1).
+    // Store the two custom indicator characters in LCD CGRAM.
+    // Character 0 = first indicator symbol.
+    // Character 1 = second indicator symbol.
     BuildCGRAM(indicator_lut, 15);
 
 
-    /******** SYSTEM DISPLAY ********/
+    /****************************************
+            SYSTEM STARTUP DISPLAY
+    ****************************************/
 
-    // Display the system startup message on LCD Line 1.
+    // Move the LCD cursor to Line 1, Position 0.
     CmdLCD(GOTO_LINE1_POS0);
+
+
+    // Display the first line of the startup message.
     StrLCD("Vehicle Safety And");
 
 
-    // Display the system startup message on LCD Line 2.
+    // Move the LCD cursor to Line 2, Position 0.
     CmdLCD(GOTO_LINE2_POS0);
+
+
+    // Display the second line of the startup message.
     StrLCD("Monitoring System ");
 
 
@@ -135,51 +148,57 @@ int main()
     delay_ms(2000);
 
 
-    // Clear the LCD after the startup message.
+    // Clear the LCD after displaying the startup message.
     CmdLCD(0x01);
 
 
-    // Main continuous monitoring loop.
+    /****************************************
+            MAIN MONITORING LOOP
+    ****************************************/
+
+    // Continuously monitor sensors, switches and CAN messages.
     while(1)
     {
         /****************************************
                 LINE1 : TEMPERATURE
         ****************************************/
 
-        // Move to the beginning of LCD Line 1.
+        // Move the LCD cursor to the beginning of Line 1.
         CmdLCD(0x80);
 
 
-        // Clear the previous temperature display.
+        // Clear the previous temperature information.
         StrLCD("               ");
 
 
-        // Return to the beginning of Line 1.
+        // Return the cursor to the beginning of Line 1.
         CmdLCD(0x80);
 
 
-        // Read engine temperature from the DS18B20 sensor.
+        // Read the engine temperature from the DS18B20 sensor.
         temp = ReadTemp();
 
 
-        // Check whether the temperature sensor failed.
+        // Check whether the temperature sensor returned an error.
         if(temp == -1)
         {
-            // Display the sensor failure message.
+            // Display sensor failure information.
             StrLCD("sensor fail");
         }
         else
         {
             // Extract the integer part of the temperature.
+            // DS18B20 temperature data is shifted right by 4 bits
+            // to obtain the integer portion.
             tp = ((int)temp) >> 4;
 
 
-            // Determine the fractional part.
-            // Display .5 when bit 3 is set; otherwise display .0.
+            // Determine the fractional part of the temperature.
+            // If bit 3 is set, display .5; otherwise display .0.
             tpd = (((int)temp) & 0x08) ? '5' : '0';
 
 
-            // Display the engine temperature label.
+            // Display the temperature label.
             StrLCD("ENG TEMP:");
 
 
@@ -199,25 +218,25 @@ int main()
             CharLCD(223);
 
 
-            // Display Celsius.
+            // Display the Celsius unit.
             CharLCD('C');
 
 
-            // Add spacing after the temperature.
+            // Add a space after the temperature.
             StrLCD(" ");
         }
 
 
         /****************************************
-            LINE2 : INDICATOR STATUS
+                LINE2 : INDICATOR STATUS
         ****************************************/
 
-        // Toggle blink between 0 and 1 to create
-        // the ON/OFF indicator blinking effect.
+        // Toggle blink between 0 and 1.
+        // This creates the ON/OFF blinking effect.
         blink = !blink;
 
 
-        // Move to LCD Line 2.
+        // Move the LCD cursor to Line 2.
         CmdLCD(0xc0);
 
 
@@ -225,15 +244,15 @@ int main()
         StrLCD("             ");
 
 
-        // Return to the beginning of Line 2.
+        // Return the cursor to the beginning of Line 2.
         CmdLCD(0xc0);
 
 
-        // Display the left indicator status.
+        // Check whether the left indicator is active.
         if(indicator_cmd == 'L')
         {
-            // Show the left indicator symbol only
-            // during the ON phase of blinking.
+            // Display the left indicator symbol only
+            // during the ON phase of the blink.
             if(blink)
                 CharLCD(0);
             else
@@ -249,13 +268,15 @@ int main()
         }
 
 
-        // Display the right indicator status.
+        // Check whether the right indicator is active.
         else if(indicator_cmd == 'R')
         {
             // Display the first custom indicator symbol.
             CharLCD(0);
-          // Show the right indicator symbol only
-            // during the ON phase of blinking.
+
+
+            // Display the second indicator symbol
+            // only during the ON phase of the blink.
             if(blink)
                 CharLCD(1);
             else
@@ -267,7 +288,7 @@ int main()
         }
 
 
-        // No indicator is active.
+        // If neither left nor right indicator is active.
         else
         {
             // Display both indicator symbols.
@@ -278,16 +299,50 @@ int main()
             // Display indicator OFF status.
             StrLCD(" IND OFF");
         }
-      /****************************************
+
+
+        /****************************************
                 CAN TRANSMISSION
         ****************************************/
 
         // tx_flag = 1 means an indicator command
-        // needs to be sent to the Indicator Node.
+        // needs to be transmitted to the Indicator Node.
         if(tx_flag == 1)
         {
-            // CAN ID 0x101 is used for indicator commands.
+            // CAN ID 0x101 is assigned to indicator commands.
             tx.ID = 0x101;
+
+
+            // RTR = 0 means this is a normal CAN data frame.
+            tx.vbf.RTR = 0;
+
+
+            // DLC = 1 means the CAN frame contains one data byte.
+            tx.vbf.DLC = 1;
+
+
+            // Store the indicator command in the first data byte.
+            // 'L' = Left
+            // 'R' = Right
+            // 'S' = OFF
+            tx.Data1 = indicator_cmd;
+
+
+            // Transmit the indicator command through CAN1.
+            CAN1_Tx(tx);
+
+
+            // Clear the transmission request after sending.
+            tx_flag = 0;
+        }
+
+
+        // tx_flag = 2 means the vehicle mode
+        // needs to be transmitted to the Reverse Node.
+        else if(tx_flag == 2)
+        {
+            // CAN ID 0x102 is assigned to vehicle mode information.
+            tx.ID = 0x102;
 
 
             // RTR = 0 means this is a normal CAN data frame.
@@ -298,55 +353,26 @@ int main()
             tx.vbf.DLC = 1;
 
 
-            // Put the indicator command into the CAN data field.
-            // 'L' = Left, 'R' = Right, 'S' = OFF.
-            tx.Data1 = indicator_cmd;
-
-
-            // Transmit the indicator command through CAN1.
-            CAN1_Tx(tx);
-
-
-            // Clear the transmission request.
-            tx_flag = 0;
-        }
-
-
-        // tx_flag = 2 means the vehicle mode
-        // needs to be transmitted.
-        else if(tx_flag == 2)
-        {
-            // CAN ID 0x102 is used for vehicle mode information.
-            tx.ID = 0x102;
-
-
-            // Send a normal CAN data frame.
-            tx.vbf.RTR = 0;
-
-
-            // The message contains one data byte.
-            tx.vbf.DLC = 1;
-
-
             // Send the current vehicle mode.
-            // 0 = Forward, 1 = Reverse.
+            // 0 = Forward
+            // 1 = Reverse
             tx.Data1 = mode;
 
 
-            // Transmit the mode information through CAN1.
+            // Transmit the vehicle mode through CAN1.
             CAN1_Tx(tx);
 
 
-            // Clear the transmission request.
+            // Clear the transmission request after sending.
             tx_flag = 0;
         }
 
 
         /****************************************
-            RECEIVE DISTANCE + ALERT
+                RECEIVE DISTANCE + ALERT
         ****************************************/
 
-        // Check whether a CAN message is available
+        // Check whether a CAN message has arrived
         // in the CAN1 receive buffer.
         if(C1GSR & RBS_BIT_READ)
         {
@@ -354,14 +380,15 @@ int main()
             CAN1_Rx(&rx);
 
 
-            // CAN ID 0x201 is used for Reverse Node information.
+            // CAN ID 0x201 is used by the Reverse Node
+            // to send distance and alert information.
             if(rx.ID == 0x201)
             {
                 // Data1 contains the measured obstacle distance.
                 dist = rx.Data1;
 
 
-                // Data2 contains the reverse-alert information.
+                // Data2 contains the alert status.
                 reverse_alert = rx.Data2;
             }
         }
@@ -371,11 +398,11 @@ int main()
                 LINE3 : MODE DISPLAY
         ****************************************/
 
-        // Move to the beginning of LCD Line 3.
+        // Move the LCD cursor to Line 3, Position 0.
         CmdLCD(0x94);
 
 
-        // Display the current vehicle operating mode.
+        // Check the current vehicle mode.
         if(mode)
         {
             // mode = 1 means Reverse mode.
@@ -389,23 +416,21 @@ int main()
 
 
         /****************************************
-            LINE4 : STATUS / DISTANCE
+                LINE4 : STATUS / DISTANCE
         ****************************************/
 
-        // Move to the beginning of LCD Line 4.
+        // Move the LCD cursor to Line 4, Position 0.
         CmdLCD(0xd4);
 
 
-        // Display reverse-distance information
-        // only when the vehicle is in Reverse mode.
+        // Display obstacle information only in Reverse mode.
         if(mode)
         {
             // Display the distance label.
             StrLCD("DIST:");
 
 
-            // Display the obstacle distance received from
-            // the Reverse Node.
+            // Display the obstacle distance.
             U32LCD(dist);
 
 
@@ -413,15 +438,14 @@ int main()
             StrLCD("cm ");
 
 
-            // Generate a safety alert when an obstacle
-            // is detected closer than 20 cm.
+            // Check whether the obstacle is closer than 20 cm.
             if(dist < 20)
             {
-                // Display the warning message.
+                // Display the danger warning.
                 StrLCD("ALERT   ");
 
 
-                // Activate the buzzer to warn the driver.
+                // Turn ON the buzzer to warn the driver.
                 Buzzer_ON();
             }
             else
@@ -430,7 +454,7 @@ int main()
                 StrLCD("SAFE   ");
 
 
-                // Keep the buzzer OFF.
+                // Turn OFF the buzzer.
                 Buzzer_OFF();
             }
         }
@@ -440,7 +464,7 @@ int main()
             StrLCD("FORWARD DRIVE MODE");
 
 
-            // Reverse warning buzzer is not required in Forward mode.
+            // Make sure the reverse warning buzzer is OFF.
             Buzzer_OFF();
         }
 
