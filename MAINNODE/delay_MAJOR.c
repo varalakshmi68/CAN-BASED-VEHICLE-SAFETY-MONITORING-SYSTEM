@@ -1,6 +1,6 @@
 //DELAY FUNCTIONS DEFINITIONS 
-#include "DELAY_MAJOR.h"
-#include "major_type.h"
+#include "DELAY_MAJOR.h"   // Project-specific data type definitions such as u8, u32, f32
+#include "major_type.h"     //Delay function declarations
 
 void delay_MS(unsigned int dly)
 {
