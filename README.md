@@ -151,37 +151,49 @@ The ultrasonic sensor is connected to the Reverse Node.
 
 The Reverse Node:
 
-Sends a trigger pulse.
-Waits for the echo signal.
-Measures the echo duration using Timer0.
-Converts the measured time into distance.
-Averages three distance measurements.
-Sends the result to the Main Node through CAN.
+- Sends a trigger pulse.
+- Waits for the echo signal.
+- Measures the echo duration using Timer0.
+- Converts the measured time into distance.
+- Averages three distance measurements.
+- Sends the result to the Main Node through CAN.
 
-6.Hardware
-Microcontroller:
-LPC21xx / ARM7-based microcontroller
-Sensors:
-DS18B20 temperature sensor
-Ultrasonic distance sensor
-Output Devices:
-16x2/20x4 LCD
-Indicator LEDs
-Buzzer
-Communication:
-CAN Bus
-Input Devices:
-Mode switch
-Left indicator switch
-Right indicator switch
+## 6. Hardware
 
-7.Development Tools
-Keil µVision
-Proteus
-Embedded C
-LPC21xx ARM7 microcontroller
-CAN communication
+### 6.1 Microcontroller
 
+- LPC2129 / ARM7-based microcontroller
+
+### 6.2 Sensors
+
+- DS18B20 temperature sensor
+- Ultrasonic distance sensor
+
+### 6.3 Output Devices
+
+- 16x2 / 20x4 LCD
+- Indicator LEDs
+- Buzzer
+
+### 6.4 Communication
+
+- CAN Bus
+
+### 6.5 Input Devices
+
+- Mode switch
+- Left indicator switch
+- Right indicator switch
+
+
+## 7. Development Tools
+
+- Keil µVision
+- Proteus
+- Embedded C
+- LPC21xx ARM7 microcontroller
+- CAN communication
+- 1-Wire communication
 
 
 
