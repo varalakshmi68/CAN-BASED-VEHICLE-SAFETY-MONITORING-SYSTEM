@@ -15,15 +15,18 @@ The system consists of three microcontroller nodes communicating over CAN:
 - **Indicator Node** — Listens for CAN messages from the Main Node and drives the vehicle's LED turn indicators accordingly.
 - **Reverse Alert Node** — Reads distance data from an ultrasonic sensor and reports proximity status to the Main Node over CAN.
 
-## ✨ Features
+### ⭐ Features
 
-- Real-time engine temperature monitoring (DS18B20) displayed on LCD
-- Indicator (turn signal) control via external switch interrupts
-- Forward / Reverse mode switching via a dedicated mode switch
-- Reverse parking assist using ultrasonic distance sensing (HC-SR05)
-- Buzzer/LED alert when an obstacle is detected in reverse mode
-- Multi-node communication using the CAN protocol
+- 🌡️ Real-time engine temperature monitoring
+- 📡 CAN-based multi-node communication
+- 💡 Automatic indicator control
+- 📏 Reverse obstacle detection
+- 🚨 Safety alert generation
+- 🔄 Forward/Reverse operating modes
+- 📺 LCD-based information display
+- ⚡ External interrupt handling
 
+  
 ## 🗺️ System Architecture
 
 The system uses three LPC2129 nodes connected on a shared CAN bus (CANH/CANL with termination resistors at each end).
@@ -60,37 +63,69 @@ The system uses three LPC2129 nodes connected on a shared CAN bus (CANH/CANL wit
 - LPC2129 architecture: GPIO, ADC, Interrupts, CAN interface
 - Understanding of the CAN protocol
 
+
+### 🚀 Applications
+This concept can be used in:
+- 🚗 Automotive safety systems
+- 🚌 Public transportation vehicles
+- 🚛 Commercial vehicles
+- 🚙 Reverse parking assistance
+- 🏭 Industrial vehicle monitoring
+- 🔧 Embedded automotive control systems
+
 ## ⚙️ How It Works
+- After the turning on the power supply of hardware it directly displays the title .
+  <img src="IMAGES/forwardmode.jpeg" width ="60%">
 
-### 🅰️ Main Node
-Continuously reads engine temperature via DS18B20 and displays it on the LCD. External interrupts (SW1/SW2) trigger indicator control signals sent to the Indicator Node over CAN. A mode switch toggles between **forward mode** (default) and **reverse mode**. In reverse mode, the Main Node listens for data from the Reverse Alert Node and activates a buzzer/LED when an obstacle is detected.
+### 🧠 NODE 1 — MAIN NODE
+## 🎯 Purpose
+The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands, and receives reverse-alert information.
+- The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands,    and receives reverse-alert information.
+- The Main Node Continuously reads the DS18B20 temperature sensor.
+- After obtaining the temperature ,the main node displays it on the LCD. 
+<img src="IMAGES/forwardmode.jpeg" width ="60%">
+- The Main Node monitors SW1/SW2/SW3 using external interrupts.
+- When the appropriate switch interrupt occurs, the Main Node generates an indicator control signal.
+- The Main Node also controls the operating mode.
+  Initially:
+  ➡️ Forward Mode
+  When the mode switch is pressed:
+  ➡️ Forward Mode → 🔙 Reverse Mode
+  When pressed again:
+  🔙 Reverse Mode → ➡️ Forward Mode.
+- When the vehicle is in Reverse Mode, the Main Node starts processing information received from the Reverse Alert Node.
+- The Main Node checks the information received from the Reverse Alert Node.
+- A mode switch toggles between **forward mode** (default) and **reverse mode**. In reverse mode, the Main Node listens for data from the Reverse Alert Node and activates a buzzer/LED when an obstacle is detected.
 
-### 🅱️ Indicator Node
-Waits for CAN messages from the Main Node and drives the corresponding LED indicator signals.
+### 💡 NODE 2 — INDICATOR NODE
+## 🎯 Purpose
+The Indicator Node is responsible for controlling the indicator signals/LEDs according to commands received from the Main Node.
+The Indicator Node continuously waits for CAN data. 
+- the indicator node initializes LPC2129,CAN interface,indicator LEDs.
+<img src="IMAGES/forwardmode.jpeg" width ="60%">
+- The indicator node continuously waits for a CAN message from the Main Node.
+- The indicator Node checks the Received CAN information and determines which indicator output needs to be control.
+- The appropriate indiacator signal is activated.
+ <img src="IMAGES/forwardmode.jpeg" width ="60%">
 
-### 🅲️ Reverse Alert Node
-Continuously reads the HC-SR05 ultrasonic sensor. If the measured distance falls below a defined threshold, it sends logic `1` to the Main Node over CAN (obstacle detected); otherwise it sends logic `0`.
+### 📡 NODE 3 — REVERSE ALERT NODE
+## 🎯 Purpose
+The Reverse Alert Node continuously monitors the HC-SR05 ultrasonic sensor and determines whether an obstacle is within the predefined distance limit.
+- The Reverse Node initializes the lpc2129,ultrasonic sensor(HC-SR05).
+- The project implementation sequence specifically includes testing the ultra-sonic sensor by reading the object distance and displaying it on the LCD.
+  <img src="IMAGES/forwardmode.jpeg" width ="60%">
+- The measured distance is compared with a predifined limit.
+- The object is with in the alert range it gives  the logic one.The object is outside the limit it gives the logic zero.
+- The Reverse alert node sends the result through CAN.
+  <img src="IMAGES/forwardmode.jpeg" width ="60%">
+<img src="IMAGES/forwardmode.jpeg" width ="60%">
 
-## 🪜 Implementation Sequence
-
-1. Set up the project folder/workspace.
-2. Test each module individually before integration:
-   - LCD: display character, string, and integer constants.
-   - DS18B20: read engine temperature and display on LCD.
-   - External interrupts: verify interrupt count is tracked and shown on LCD.
-   - Ultrasonic sensor: read and display distance.
-   - Basic CAN code: flash and verify communication on hardware.
-3. Once all modules work independently, integrate them into the final code for each node (Main, Indicator, Reverse Alert).
-
-## 🚀 Getting Started
-
-1. Clone this repository.
-2. Open each node's project in Keil µVision.
-3. Build the project to generate the `.hex` file.
-4. Flash the `.hex` file to the respective LPC2129 board using Flash Magic.
-5. Connect all three nodes on the same CAN bus (via MCP2551 transceivers) and power them on.
-6. Verify LCD output, indicator behavior, and reverse alert functionality as described above.
-
-## 📄 License
-
-Add your preferred license here (e.g., MIT).
+### 🔮 Future Scope
+The system can be further enhanced by adding:
+- 📱 Mobile application for vehicle monitoring
+- 🌐 IoT-based remote monitoring
+- 📍 GPS-based vehicle tracking
+- 📷 Camera-based obstacle detection
+- 🤖 AI-based accident prediction
+- 📊 Cloud-based vehicle data logging
+- 🔔 Advanced driver warning systems
