@@ -141,13 +141,13 @@ This concept can be used in:
  # 🎯 Purpose
 - The Reverse Alert Node continuously monitors the HC-SR05 ultrasonic sensor and determines whether an obstacle is within the predefined distance limit.
 - The Reverse Node initializes the lpc2129,ultrasonic sensor(HC-SR05).
-- The project implementation sequence specifically includes testing the ultra-sonic sensor by reading the object distance and displaying it on the LCD.
- <img src="IMAGES/reverse.jpeg" width ="60%"><br>
+- The project implementation sequence specifically includes testing the ultra-sonic sensor by reading the object distance and displaying it on the LCD.<br>
+ <img src="IMAGES/reverse.jpeg" width ="30%"><br>
 . The measured distance is compared with a predifined limit.<br>
 . The object is with in the alert range it gives  the logic one.The object is outside the limit it gives the logic zero.<br>
 . The Reverse alert node sends the result through CAN.<br>
- <img src="IMAGES/reversenode_safe.jpeg" width ="60%">
- <img src="IMAGES/reversenode_alert.jpeg" width ="60%">
+ <img src="IMAGES/reverse_safe.jpeg" width ="60%">
+ <img src="IMAGES/reversemode_alert.jpeg" width ="60%">
 
 
 
