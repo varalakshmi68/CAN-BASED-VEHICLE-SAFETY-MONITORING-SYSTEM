@@ -24,6 +24,17 @@ The system consists of three microcontroller nodes communicating over CAN:
 - Buzzer/LED alert when an obstacle is detected in reverse mode
 - Multi-node communication using the CAN protocol
 
+## 🗺️ System Architecture
+
+The system uses three LPC2129 nodes connected on a shared CAN bus (CANH/CANL with termination resistors at each end).
+
+<img src="IMAGES/BLOCKDIAGRAM.jpeg" width ="80%">
+
+- **Main Node** — LPC2129 + MCP2551, interfaced with LCD, Buzzer/LED, DS18B20 (engine temp), Mode Switch, and Left/Right indicator switches (via external interrupts).
+- **Indicator Node** — LPC2129 + MCP2551, driving 8 LEDs that scroll left-to-right or right-to-left based on the indication received.
+- **Reverse Alert Node** — LPC2129 + MCP2551, interfaced with an HC-SR05 ultrasonic sensor for obstacle distance sensing.
+
+
 ## 🔧 Hardware Requirements
 
 | Component | Purpose |
@@ -49,16 +60,6 @@ The system consists of three microcontroller nodes communicating over CAN:
 - LPC2129 architecture: GPIO, ADC, Interrupts, CAN interface
 - Understanding of the CAN protocol
 
-## 🗺️ System Architecture
-
-The system uses three LPC2129 nodes connected on a shared CAN bus (CANH/CANL with termination resistors at each end).
-
-![CAN Bus Block Diagram](docs/block_diagram.png)
-
-- **Main Node** — LPC2129 + MCP2551, interfaced with LCD, Buzzer/LED, DS18B20 (engine temp), Mode Switch, and Left/Right indicator switches (via external interrupts).
-- **Indicator Node** — LPC2129 + MCP2551, driving 8 LEDs that scroll left-to-right or right-to-left based on the indication received.
-- **Reverse Alert Node** — LPC2129 + MCP2551, interfaced with an HC-SR05 ultrasonic sensor for obstacle distance sensing.
-
 ## ⚙️ How It Works
 
 ### 🅰️ Main Node
@@ -80,18 +81,6 @@ Continuously reads the HC-SR05 ultrasonic sensor. If the measured distance falls
    - Ultrasonic sensor: read and display distance.
    - Basic CAN code: flash and verify communication on hardware.
 3. Once all modules work independently, integrate them into the final code for each node (Main, Indicator, Reverse Alert).
-
-## 📁 Repository Structure
-
-```
-├── main_node/            # Source code for the Main Node
-├── indicator_node/       # Source code for the Indicator Node
-├── reverse_alert_node/   # Source code for the Reverse Alert Node
-├── docs/                 # Block diagram and project documentation
-└── README.md
-```
-
-*(Adjust the structure above to match your actual folder layout.)*
 
 ## 🚀 Getting Started
 
