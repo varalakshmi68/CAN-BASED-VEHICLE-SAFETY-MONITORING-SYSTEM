@@ -99,8 +99,9 @@ This concept can be used in:
 
 ### 🧠 NODE 1 — MAIN NODE
   🎯 Purpose
-   <img src="IMAGES/mainnode.jpeg" width ="60%">
+  
 The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands, and receives reverse-alert information.
+  <img src="IMAGES/mainnode.jpeg" width ="60%">
 - The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands,     and receives reverse-alert information.
 - The Main Node Continuously reads the DS18B20 temperature sensor.
 -  After obtaining the temperature ,the main node displays it on the LCD. 
