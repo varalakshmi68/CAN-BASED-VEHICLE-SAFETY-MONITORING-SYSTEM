@@ -7,6 +7,8 @@
 
 An automotive safety and monitoring system built on the **Controller Area Network (CAN)** protocol. A central **Main Node** monitors engine temperature, controls vehicle indicators, and processes reverse sensor data to deliver real-time safety alerts through coordinated communication with multiple CAN nodes.
 
+
+
 ## 📋 Overview
 
 The system consists of three microcontroller nodes communicating over CAN:
@@ -14,6 +16,8 @@ The system consists of three microcontroller nodes communicating over CAN:
 - **Main Node** — Reads engine temperature continuously, handles indicator switch interrupts, manages forward/reverse mode switching, and triggers reverse-alert warnings.
 - **Indicator Node** — Listens for CAN messages from the Main Node and drives the vehicle's LED turn indicators accordingly.
 - **Reverse Alert Node** — Reads distance data from an ultrasonic sensor and reports proximity status to the Main Node over CAN.
+
+
 
 ### ⭐ Features
 
@@ -26,6 +30,8 @@ The system consists of three microcontroller nodes communicating over CAN:
 - 📺 LCD-based information display
 - ⚡ External interrupt handling
 
+
+
   
 ## 🗺️ System Architecture
 
@@ -36,6 +42,9 @@ The system uses three LPC2129 nodes connected on a shared CAN bus (CANH/CANL wit
 - **Main Node** — LPC2129 + MCP2551, interfaced with LCD, Buzzer/LED, DS18B20 (engine temp), Mode Switch, and Left/Right indicator switches (via external interrupts).
 - **Indicator Node** — LPC2129 + MCP2551, driving 8 LEDs that scroll left-to-right or right-to-left based on the indication received.
 - **Reverse Alert Node** — LPC2129 + MCP2551, interfaced with an HC-SR05 ultrasonic sensor for obstacle distance sensing.
+
+
+
 
 
 ## 🔧 Hardware Requirements
@@ -51,17 +60,24 @@ The system uses three LPC2129 nodes connected on a shared CAN bus (CANH/CANL wit
 | DS18B20 Temperature Sensor | Engine temperature sensing |
 | USB to UART Converter | Programming/debugging interface |
 
+
+
 ## 💻 Software Requirements
 
 - Embedded C
 - Keil µVision (C Compiler/IDE)
 - Flash Magic (for flashing LPC2129)
 
+
+
+
 ## 🧠 Prerequisites / Knowledge Required
 
 - Embedded C programming
 - LPC2129 architecture: GPIO, ADC, Interrupts, CAN interface
 - Understanding of the CAN protocol
+
+
 
 
 ### 🚀 Applications
@@ -73,6 +89,8 @@ This concept can be used in:
 - 🏭 Industrial vehicle monitoring
 - 🔧 Embedded automotive control systems
 
+
+
 ## ⚙️ How It Works
 - After the turning on the power supply of hardware it directly displays the title .
   <img src="IMAGES/forwardmode.jpeg" width ="60%">
@@ -80,7 +98,7 @@ This concept can be used in:
 
 
 ### 🧠 NODE 1 — MAIN NODE
-# 🎯 Purpose
+  🎯 Purpose
 The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands, and receives reverse-alert information.
 - The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands,     and receives reverse-alert information.
 - The Main Node Continuously reads the DS18B20 temperature sensor.
@@ -101,8 +119,9 @@ The Main Node is the central control node. It monitors engine temperature, handl
 
 
 
+
 ### 💡 NODE 2 — INDICATOR NODE
-# 🎯 Purpose
+  🎯 Purpose
 The Indicator Node is responsible for controlling the indicator signals/LEDs according to commands received from the Main Node.
 The Indicator Node continuously waits for CAN data. 
 - the indicator node initializes LPC2129,CAN interface,indicator LEDs.
@@ -114,8 +133,10 @@ The Indicator Node continuously waits for CAN data.
 
 
 
+
+
 ### 📡 NODE 3 — REVERSE ALERT NODE
-# 🎯 Purpose
+  🎯 Purpose
 The Reverse Alert Node continuously monitors the HC-SR05 ultrasonic sensor and determines whether an obstacle is within the predefined distance limit.
 - The Reverse Node initializes the lpc2129,ultrasonic sensor(HC-SR05).
 - The project implementation sequence specifically includes testing the ultra-sonic sensor by reading the object distance and displaying it on the LCD.
@@ -126,6 +147,8 @@ The Reverse Alert Node continuously monitors the HC-SR05 ultrasonic sensor and d
  <img src="IMAGES/forwardmode.jpeg" width ="60%">
  <img src="IMAGES/forwardmode.jpeg" width ="60%">
 
+
+
 ### 🔮 Future Scope
 The system can be further enhanced by adding:
 - 📱 Mobile application for vehicle monitoring
@@ -135,6 +158,9 @@ The system can be further enhanced by adding:
 - 🤖 AI-based accident prediction
 - 📊 Cloud-based vehicle data logging
 - 🔔 Advanced driver warning systems
+
+
+
 
 ### 📜 Conclusion
 The CAN-Based Vehicle Safety & Monitoring System demonstrates how multiple embedded nodes can communicate using the CAN protocol to perform vehicle
