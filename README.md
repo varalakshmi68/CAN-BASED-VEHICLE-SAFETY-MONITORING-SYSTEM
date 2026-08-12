@@ -93,7 +93,7 @@ This concept can be used in:
 
 ## ⚙️ How It Works
 - After the turning on the power supply of hardware it directly displays the title .
-  <img src="IMAGES/title.jpeg" width ="indica0%">
+  <img src="IMAGES/title.jpeg" width ="60%">
 
 
 
@@ -101,7 +101,7 @@ This concept can be used in:
   🎯 Purpose
   
 The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands, and receives reverse-alert information.
-  <img src="IMAGES/mainnode.jpeg" width ="60%">
+  <img src="IMAGES/mainnode.jpeg" width ="30%">
 - The Main Node is the central control node. It monitors engine temperature, handles switch inputs, controls the vehicle mode, sends indicator commands,     and receives reverse-alert information.
 - The Main Node Continuously reads the DS18B20 temperature sensor.
 -  After obtaining the temperature ,the main node displays it on the LCD. 
