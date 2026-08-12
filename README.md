@@ -93,7 +93,7 @@ This concept can be used in:
 
 ## ⚙️ How It Works
 - After the turning on the power supply of hardware it directly displays the title .
-  <img src="IMAGES/forwardmode.jpeg" width ="60%">
+  <img src="IMAGES/title.jpeg" width ="indica0%">
 
 
 
